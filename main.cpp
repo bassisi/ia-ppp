@@ -48,6 +48,9 @@ map<int, vector<int>> split(string s, string delimiter)
 
 int main()
 {
+    int randindex;
+    srand(time(0));
+ 
     string line;
     string yatesaux;
     string anfitrionesaux;
@@ -58,6 +61,10 @@ int main()
     vector<int> yateskeys;
     vector<int> anfitriones;
     vector<int> huespedes;
+    vector<int> solaux;
+    vector<vector<int>> solucion_i;
+
+    
 
     if (archivo.is_open())
     {
@@ -105,6 +112,24 @@ int main()
 
     std::set_difference(yateskeys.begin(), yateskeys.end(), anfitriones.begin(), anfitriones.end(),
         std::inserter(huespedes, huespedes.begin()));
+
+    for (int i = 0; i < huespedes.size(); i++){
+        solaux = {};
+        for (int j = 0; j < instancia['T']; j++){
+            randindex = rand() % anfitriones.size();
+            solaux.push_back(anfitriones[randindex]);
+        }
+        solucion_i.push_back(solaux);
+    }
+
+    for ( std::vector<std::vector<int>>::size_type i = 0; i < solucion_i.size(); i++ )
+    {
+        for ( std::vector<int>::size_type j = 0; j < solucion_i[i].size(); j++ )
+        {
+            std::cout << solucion_i[i][j] << ' ';
+        }
+        std::cout << std::endl;
+    }
 
     return 0;
 }
