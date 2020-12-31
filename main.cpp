@@ -3,6 +3,10 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <iterator>
+#include <algorithm>
+
+
 
 using namespace std;
 
@@ -46,9 +50,15 @@ int main()
 {
     string line;
     string yatesaux;
+    string anfitrionesaux;
     ifstream archivo("./Configuraciones/PPP.txt");
+    ifstream archivo2("./Configuraciones/config1.txt");
     map<char, int> instancia;
     map<int, vector<int>> yates;
+    vector<int> yateskeys;
+    vector<int> anfitriones;
+    vector<int> huespedes;
+
     if (archivo.is_open())
     {
         int i = 0;
@@ -70,14 +80,31 @@ int main()
         }
         archivo.close();
     }
-
     else
         std::cout << "Unable to open file\n";
 
     yates = split(yatesaux, ";");
-    cout << instancia['Y'] << endl;
-    cout << instancia['T'] << endl;
-    cout << to_string(yates[1][0]) << endl;
+
+    for( int i = 1; i <= instancia['Y']; i++) {
+        yateskeys.push_back(i);
+    }
+
+    if (archivo2.is_open())
+    {
+        int i = 0;
+        while (getline(archivo2, line, '\n'))
+        {
+            anfitrionesaux = line;
+        }
+        archivo.close();
+    }
+    else
+        std::cout << "Unable to open file\n";
+
+    anfitriones = splitaux(anfitrionesaux, " ");
+
+    std::set_difference(yateskeys.begin(), yateskeys.end(), anfitriones.begin(), anfitriones.end(),
+        std::inserter(huespedes, huespedes.begin()));
 
     return 0;
 }
