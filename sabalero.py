@@ -64,7 +64,7 @@ def once_cost(solucion):
                 for guestaux in hosts[hostaux]:
                     if guestaux != guest:
                         guests[guest] += [guestaux]
-    print(hosts)
+
     for guest in guests:
         guestset = list(set(guests[guest]))
         costomeet += len(guests[guest]) - len(guestset)
@@ -202,6 +202,6 @@ solucion_i = np.array([[10, 10, 12,  1,  8,  7],
  [ 4, 11,  3, 11, 12,  6],
  [16,  6,  1,  4, 12, 16],
  [ 2,  9, 12,  2,  3,  9]])
-print(get_cost(solucion_i))
+print(get_neighbors2(solucion_i))
 
 
