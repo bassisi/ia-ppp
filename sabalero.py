@@ -64,7 +64,7 @@ def once_cost(solucion):
                 for guestaux in hosts[hostaux]:
                     if guestaux != guest:
                         guests[guest] += [guestaux]
-    
+    print(hosts)
     for guest in guests:
         guestset = list(set(guests[guest]))
         costomeet += len(guests[guest]) - len(guestset)
@@ -172,7 +172,36 @@ for i in range(len(huespedes)):
     for j in range(instancia["T"]):
         solucion_i[i][j] = np.random.choice(list(anfitriones))
 
-#solucion_i = np.matrix([[1,2,3],[2,3,4],[3,4,5]])
-print(simulated_annealing(solucion_i, anfitriones))
+
+solucion_i = np.array([[10, 10, 12,  1,  8,  7],
+ [ 8,  3, 10,  8,  5,  1],
+ [ 3, 12,  4,  3, 12,  2],
+ [ 9,  8, 11,  6, 10, 16],
+ [ 2,  6, 12, 16,  1,  4],
+ [ 2,  4,  4,  7,  9,  6],
+ [ 2,  8,  3, 10, 16, 12],
+ [10, 10, 12,  1,  7, 10],
+ [ 2,  4,  5, 11,  3,  4],
+ [ 5,  2, 12, 16,  5, 12],
+ [11,  7, 10,  8, 11,  4],
+ [ 1,  7,  7,  3,  5, 11],
+ [10, 10, 16,  1,  3, 16],
+ [ 7,  7, 16,  7, 11, 10],
+ [ 9, 11, 10,  7,  4, 11],
+ [ 8,  6,  5,  3, 10, 10],
+ [12,  9,  4, 12,  7,  9],
+ [ 6,  1, 12,  6, 12,  7],
+ [11,  7,  9,  6,  7,  4],
+ [ 2, 10,  3,  1,  6,  4],
+ [10, 16, 16,  9, 11,  3],
+ [ 7,  6, 12,  9,  3,  6],
+ [ 8,  1, 12, 10, 11, 10],
+ [ 5,  1, 12,  3,  4,  8],
+ [ 5,  3,  4,  2, 10,  6],
+ [ 2,  4,  7, 16,  1, 10],
+ [ 4, 11,  3, 11, 12,  6],
+ [16,  6,  1,  4, 12, 16],
+ [ 2,  9, 12,  2,  3,  9]])
+print(get_cost(solucion_i))
 
 
