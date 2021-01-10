@@ -11,42 +11,6 @@
 
 using namespace std;
 
-void create_file() 
-{ 
-    // file pointer 
-    fstream fout; 
-  
-    // opens an existing csv file or creates a new file. 
-    fout.open("resultados.txt", ios::out | ios::app); 
-  
-    cout << "Enter the details of 5 students:"
-         << " roll name maths phy chem bio"; 
-    cout << endl; 
-  
-    int i, roll, phy, chem, math, bio; 
-    string name; 
-  
-    // Read the input 
-    for (i = 0; i < 5; i++) { 
-  
-        cin >> roll 
-            >> name 
-            >> math 
-            >> phy 
-            >> chem 
-            >> bio; 
-  
-        // Insert the data to file 
-        fout << roll << ", "
-             << name << ", "
-             << math << ", "
-             << phy << ", "
-             << chem << ", "
-             << bio 
-             << "\n"; 
-    } 
-} 
-
 vector<int> splitaux(string s, string delimiter)
 {
     vector<int> lista;
@@ -103,17 +67,16 @@ float diff_cost(vector<vector<int>> solucion){
 float once_cost(vector<vector<int>> solucion, vector<int> huespedes){
     float costomeet = 0;
     map<int, vector<int>> guests;
-    int nfila = solucion.size();
     int ncolumna = solucion[0].size();
 
     for (int j = 0; j < ncolumna; j++){
         map<int, vector<int>> hosts;
         vector<int> columna;
-        for (int i = 0; i < solucion.size(); i++){
+        for (int unsigned long i = 0; i < solucion.size(); i++){
             columna.push_back(solucion[i][j]);
         }
         int i = 0;
-        for (int h = 0; h < columna.size(); h++){
+        for (int unsigned long h = 0; h < columna.size(); h++){
             map<int,vector<int>>::iterator it;
             it = hosts.find(columna[h]);
             if (it != hosts.end()){
@@ -125,7 +88,7 @@ float once_cost(vector<vector<int>> solucion, vector<int> huespedes){
             i += 1;
         }
 
-        for ( int i = 1; i <= hosts.size(); i++ )
+        for ( int unsigned long i = 1; i <= hosts.size(); i++ )
         {
             if (hosts[i].size() != 0){
                 int hostaux = i;
@@ -137,7 +100,7 @@ float once_cost(vector<vector<int>> solucion, vector<int> huespedes){
                     if (it == guests.end()){
                         guests[guest] = {};
                     }
-                    for ( int g = 0; g < hosts[hostaux].size(); g++){
+                    for ( int unsigned long g = 0; g < hosts[hostaux].size(); g++){
                         int guestaux = hosts[hostaux][g];
                         if (guestaux != guest){
                             guests[guest].push_back(guestaux);
@@ -148,7 +111,7 @@ float once_cost(vector<vector<int>> solucion, vector<int> huespedes){
         }
     }
 
-    for(int g = 1; g <= guests.size(); g++){
+    for(int unsigned long g = 1; g <= guests.size(); g++){
         vector<int> guest = guests[g];
         if (guest.size() != 0){
             vector<int> guestset = guest;
@@ -163,17 +126,16 @@ float once_cost(vector<vector<int>> solucion, vector<int> huespedes){
 
 float capa_cost(vector<vector<int>> solucion, map<int, vector<int>> yates,vector<int> huespedes){
     float costocapa = 0;
-    int nfila = solucion.size();
     int ncolumna = solucion[0].size();
 
     for (int j = 0; j < ncolumna; j++){
         map<int, vector<int>> hosts;
         vector<int> columna;
-        for (int i = 0; i < solucion.size(); i++){
+        for (int unsigned long i = 0; i < solucion.size(); i++){
             columna.push_back(solucion[i][j]);
         }
         int i = 0;
-        for (int h = 0; h < columna.size(); h++){
+        for (int unsigned long h = 0; h < columna.size(); h++){
             map<int,vector<int>>::iterator it;
             it = hosts.find(columna[h]);
             if (it != hosts.end()){
@@ -185,11 +147,11 @@ float capa_cost(vector<vector<int>> solucion, map<int, vector<int>> yates,vector
             i += 1;
         }
 
-        for (int host = 1; host <= hosts.size(); host++){
+        for (int unsigned long host = 1; host <= hosts.size(); host++){
             if (hosts[host].size() != 0){
                 int cap_rest = yates[host][0] - yates[host][1];
                 int crews_size = 0;
-                for(int guest = 0; guest < hosts[host].size(); guest++){
+                for(int unsigned long guest = 0; guest < hosts[host].size(); guest++){
                     crews_size += yates[hosts[host][guest]][1]; 
                 }
                 float sigma = cap_rest - crews_size;
@@ -213,9 +175,9 @@ float get_cost(vector<vector<int>> solucion, map<int, vector<int>> yates, vector
 vector<vector<vector<int>>> get_neighbors(vector<vector<int>> solucion, vector<int> hosts){
     vector<vector<vector<int>>> neighbors;
 
-    for (int i = 0; i < solucion.size(); i++){
-        for (int j = 0; j < solucion[0].size(); j++){
-            for (int h = 0; h < hosts.size(); h++){
+    for (int unsigned long i = 0; i < solucion.size(); i++){
+        for (int unsigned long j = 0; j < solucion[0].size(); j++){
+            for (int unsigned long h = 0; h < hosts.size(); h++){
                 int host = hosts[h];
                 vector<vector<int>> solucionaux = solucion;
                 if (host != solucion[i][j]){
@@ -230,21 +192,21 @@ vector<vector<vector<int>>> get_neighbors(vector<vector<int>> solucion, vector<i
 
 vector<vector<vector<int>>> get_neighbors2(vector<vector<int>> solucion){
     vector<vector<vector<int>>> neighbors;
-    for (int i = 0; i < solucion[0].size(); i++){
+    for (int unsigned long i = 0; i < solucion[0].size(); i++){
         vector<int> columna;
         vector<int> columnai;
-        for (int c = 0; c < solucion.size(); c++){
+        for (int unsigned long c = 0; c < solucion.size(); c++){
             columna.push_back(solucion[c][i]);
         }
         columnai = columna;
-        for (int j = 0; j < columna.size(); j++){
+        for (int unsigned long j = 0; j < columna.size(); j++){
             vector<vector<int>> solucion_aux = solucion;
-            for (int k = j; k < columna.size(); k++){
+            for (int unsigned long k = j; k < columna.size(); k++){
                 if(k != j){
                     int aux = columna[j];
                     columna[j] = columna[k];
                     columna[k] = aux;
-                    for (int c = 0; c < solucion.size(); c++){
+                    for (int unsigned long c = 0; c < solucion.size(); c++){
                         solucion_aux[c][i] = columna[c];
                     }
                     neighbors.push_back(solucion_aux);
@@ -281,7 +243,7 @@ vector<vector<int>> best_neighbor(vector<vector<vector<int>>> neighbors, vector<
     vector<vector<int>> solucion = state;
     float min_cost = get_cost(solucion, yates, huespedes);
 
-    for (int i = 0; i<neighbors.size(); i++){
+    for (int unsigned long i = 0; i<neighbors.size(); i++){
         vector<vector<int>> neighbor = neighbors[i];
         float cost = get_cost(neighbor, yates, huespedes);
         if (cost < min_cost){
@@ -294,8 +256,6 @@ vector<vector<int>> best_neighbor(vector<vector<vector<int>>> neighbors, vector<
 }
 
 vector<vector<int>> simulated_annealing(vector<vector<int>> initial_state, map<int, vector<int>> yates, vector<int> hosts, vector<int> guests, string config, int times){
-    int randindex;
-
     float initial_temp = 50;
     float final_temp = 0;
     float alpha = 0.01;
@@ -308,7 +268,7 @@ vector<vector<int>> simulated_annealing(vector<vector<int>> initial_state, map<i
     vector<vector<int>> solution = current_state;
     while (iter_recal <= max_iter && get_cost(solution, yates, guests) != 0){
 
-        float current_temp = initial_temp;
+        current_temp = initial_temp;
      
         vector<vector<int>> current_state = initial_state;
         
@@ -450,7 +410,6 @@ int main(int argc, char *argv[])
 
     if (archivo2.is_open())
     {
-        int i = 0;
         while (getline(archivo2, line, '\n'))
         {
             anfitrionesaux = line;
@@ -465,7 +424,7 @@ int main(int argc, char *argv[])
     std::set_difference(yateskeys.begin(), yateskeys.end(), anfitriones.begin(), anfitriones.end(),
         std::inserter(huespedes, huespedes.begin()));
 
-    for (int i = 0; i < huespedes.size(); i++){
+    for (int unsigned long i = 0; i < huespedes.size(); i++){
         solaux = {};
         for (int j = 0; j < instancia['T']; j++){
             randindex = rand() % anfitriones.size();
