@@ -4,33 +4,47 @@ import numpy as np
 
 def simulated_annealing(initial_state, hosts):
     """Peforms simulated annealing to find a solution"""
-    initial_temp = 90
+    initial_temp = 50
     final_temp = 0
     alpha = 0.01
-    
-    current_temp = initial_temp
+    iter_recal = 0
+    max_iter = 10
 
     # Start by initializing the current state with the initial state
     current_state = initial_state.copy()
     solution = current_state.copy()
+    while iter_recal < max_iter and get_cost(solution) != 0:
+        current_temp = initial_temp
+     
+        current_state = initial_state.copy()
+        
+        current_solution = current_state.copy()
+        while current_temp > final_temp and get_cost(solution) != 0:
+            neighbor = get_neighbors3(current_state, hosts).copy() 
+         
+            if current_temp < 1:
+                neighbor = best_neighbor(get_neighbors(current_state, hosts) + get_neighbors2(current_state, hosts), current_state)
+                if get_cost(neighbor) == get_cost(current_state):
+                    break
 
-    while current_temp > final_temp and get_cost(solution) != 0:
-        neighbor = random.choice(get_neighbors(current_state, hosts)+get_neighbors2(current_state)).copy() 
-
-        print(get_cost(neighbor), current_temp)
-        # Check if neighbor is best so far
-        cost_diff = get_cost(current_state) - get_cost(neighbor)
-        # if the new solution is better, accept it
-        if cost_diff > 0:
-            current_state = neighbor.copy()
-        # if the new solution is not better, accept it with a probability of e^(-cost/temp)
-        else:
-            if random.uniform(0, 1) < math.exp(cost_diff / current_temp):
+            print(iter_recal, get_cost(solution), get_cost(neighbor), current_temp)
+            # Check if neighbor is best so far
+            cost_diff = get_cost(current_state) - get_cost(neighbor)
+            # if the new solution is better, accept it
+            if cost_diff > 0:
                 current_state = neighbor.copy()
-        if get_cost(solution) > get_cost(current_state):
-            solution = current_state.copy()
-        # decrement the temperature
-        current_temp -= alpha
+            # if the new solution is not better, accept it with a probability of e^(-cost/temp)
+            else:
+                if random.uniform(0, 1) < math.exp(cost_diff / current_temp):
+                    current_state = neighbor.copy()
+            if get_cost(current_solution) > get_cost(current_state):
+                current_solution = current_state.copy()
+                if get_cost(solution) > get_cost(current_solution):
+                    solution = current_solution.copy()
+            # decrement the temperature
+            current_temp -= alpha
+            current_state = current_solution
+        iter_recal += 1
     return solution
 
 def diff_cost(solucion):
@@ -83,23 +97,21 @@ def capa_cost(solution):
             else:
                 hosts[int(host)] += [huespedes[i]]
             i += 1
-
         for host in hosts:
             cap_rest = instancia["D"][host][0]-instancia["D"][host][1]
             crews_size = 0
             for guest in hosts[host]:
                 crews_size += instancia["D"][guest][1]
             sigma = cap_rest - crews_size
-            if sigma <= 0:
+            if sigma < 0:
                 sigma = abs(sigma)
-            else:
-                sigma = 0
-            capa_cost += 1 + (sigma-1)/4
+                capa_cost += 1 + (sigma-1)/4
+            
 
     return capa_cost
 
 def get_cost(solution):
-    total_cost = 4*diff_cost(solution) + 2*once_cost(solution) + 4*capa_cost(solution)   
+    total_cost = 4*diff_cost(solution) + 2*once_cost(solution) + 4*capa_cost(solution) 
     return total_cost
 
 def get_neighbors(solution, hosts):
@@ -113,7 +125,7 @@ def get_neighbors(solution, hosts):
                     neighbors.append(solutionaux)
     return neighbors
 
-def get_neighbors2(solution):
+def get_neighbors2(solution, hosts):
     neighbors = list()
     for i in range(solution.shape[1]):
         columna = solution[:,i].copy()
@@ -127,18 +139,36 @@ def get_neighbors2(solution):
                     solucion_aux[:,i] = columna.copy()
                     neighbors.append(solucion_aux.copy())
                 columna = solution[:,i].copy()
-
     return neighbors
 
-def best_neighbor(neighbors):
-    solution = np.zeros(neighbors[0].shape)
-    min_cost = float("inf")
+def get_neighbors3(solution, hosts):
+    solutionaux = solution.copy()
+    ri = random.randint(0, solution.shape[0]-1)
+    rj = random.randint(0, solution.shape[1]-1)
+    rk = random.randint(0, len(hosts)-1)
+
+    solutionaux[ri][rj] = hosts[rk]
+    
+    rc = random.randint(0, solution.shape[0]-1)
+    while rc == ri:
+        rc = random.randint(0, solution.shape[0]-1)
+
+    aux = solutionaux[ri][rj]
+    solutionaux[ri][rj] = solutionaux[rc][rj]
+    solutionaux[rc][rj] = aux
+
+    return solutionaux
+
+def best_neighbor(neighbors, state):
+    solution = state.copy()
+    min_cost = get_cost(state)
 
     for neighbor in neighbors:
         cost = get_cost(neighbor)
         if cost < min_cost:
             min_cost = cost
             solution = neighbor.copy()
+            break
     return solution
 
 archivo = open("./Configuraciones/PPP.txt")
@@ -172,7 +202,7 @@ for i in range(len(huespedes)):
     for j in range(instancia["T"]):
         solucion_i[i][j] = np.random.choice(list(anfitriones))
 
-
+'''
 solucion_i = np.array([[10, 10, 12,  1,  8,  7],
  [ 8,  3, 10,  8,  5,  1],
  [ 3, 12,  4,  3, 12,  2],
@@ -202,6 +232,7 @@ solucion_i = np.array([[10, 10, 12,  1,  8,  7],
  [ 4, 11,  3, 11, 12,  6],
  [16,  6,  1,  4, 12, 16],
  [ 2,  9, 12,  2,  3,  9]])
-print(get_neighbors2(solucion_i))
+'''
 
+print(simulated_annealing(solucion_i, anfitriones))
 

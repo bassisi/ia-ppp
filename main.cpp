@@ -11,6 +11,42 @@
 
 using namespace std;
 
+void create_file() 
+{ 
+    // file pointer 
+    fstream fout; 
+  
+    // opens an existing csv file or creates a new file. 
+    fout.open("resultados.txt", ios::out | ios::app); 
+  
+    cout << "Enter the details of 5 students:"
+         << " roll name maths phy chem bio"; 
+    cout << endl; 
+  
+    int i, roll, phy, chem, math, bio; 
+    string name; 
+  
+    // Read the input 
+    for (i = 0; i < 5; i++) { 
+  
+        cin >> roll 
+            >> name 
+            >> math 
+            >> phy 
+            >> chem 
+            >> bio; 
+  
+        // Insert the data to file 
+        fout << roll << ", "
+             << name << ", "
+             << math << ", "
+             << phy << ", "
+             << chem << ", "
+             << bio 
+             << "\n"; 
+    } 
+} 
+
 vector<int> splitaux(string s, string delimiter)
 {
     vector<int> lista;
@@ -157,13 +193,10 @@ float capa_cost(vector<vector<int>> solucion, map<int, vector<int>> yates,vector
                     crews_size += yates[hosts[host][guest]][1]; 
                 }
                 float sigma = cap_rest - crews_size;
-                if (sigma <= 0){
+                if (sigma < 0){
                     sigma = sigma * (-1);
+                    costocapa += 1 + (sigma-1)/4;
                 }
-                else {
-                    sigma = 0;
-                }
-                costocapa += 1 + (sigma-1)/4;
             }
         }
  
@@ -173,12 +206,13 @@ float capa_cost(vector<vector<int>> solucion, map<int, vector<int>> yates,vector
 }
 
 float get_cost(vector<vector<int>> solucion, map<int, vector<int>> yates, vector<int> huespedes){
-    float total_cost = 4*diff_cost(solucion) + 2*once_cost(solucion, huespedes) + 4*capa_cost(solucion, yates, huespedes)   ;
+    float total_cost = 4*diff_cost(solucion) + 2*once_cost(solucion, huespedes) + 4*capa_cost(solucion, yates, huespedes);
     return total_cost;
 }
 
 vector<vector<vector<int>>> get_neighbors(vector<vector<int>> solucion, vector<int> hosts){
     vector<vector<vector<int>>> neighbors;
+
     for (int i = 0; i < solucion.size(); i++){
         for (int j = 0; j < solucion[0].size(); j++){
             for (int h = 0; h < hosts.size(); h++){
@@ -222,56 +256,158 @@ vector<vector<vector<int>>> get_neighbors2(vector<vector<int>> solucion){
     return neighbors;
 }
 
-vector<vector<int>> simulated_annealing(vector<vector<int>> initial_state, map<int, vector<int>> yates, vector<int> hosts, vector<int> guests){
-    int randindex;
-    srand(time(0));
+vector<vector<int>> get_neighbors3(vector<vector<int>> solucion, vector<int> hosts){
+    vector<vector<int>> neighbor;
 
-    float initial_temp = 90;
+    int randi = rand() % solucion.size();
+    int randj = rand() % solucion[0].size();
+    int randh = rand() % hosts.size();
+
+    vector<vector<int>> solucionaux = solucion;
+    solucionaux[randi][randj] = hosts[randh];
+    int randc = rand() % solucion.size();
+    while (randc == randi){
+        randc = rand() % solucion.size();
+    }
+    int aux = solucionaux[randi][randj];
+    solucionaux[randi][randj] = solucionaux[randc][randj];
+    solucionaux[randc][randj] = aux;
+    neighbor = solucionaux;
+
+    return neighbor;
+}
+
+vector<vector<int>> best_neighbor(vector<vector<vector<int>>> neighbors, vector<vector<int>> state, map<int, vector<int>> yates, vector<int> huespedes){
+    vector<vector<int>> solucion = state;
+    float min_cost = get_cost(solucion, yates, huespedes);
+
+    for (int i = 0; i<neighbors.size(); i++){
+        vector<vector<int>> neighbor = neighbors[i];
+        float cost = get_cost(neighbor, yates, huespedes);
+        if (cost < min_cost){
+            min_cost = cost;
+            solucion = neighbor;
+            i = neighbors.size();
+        }
+    }
+    return solucion;
+}
+
+vector<vector<int>> simulated_annealing(vector<vector<int>> initial_state, map<int, vector<int>> yates, vector<int> hosts, vector<int> guests, string config, int times){
+    int randindex;
+
+    float initial_temp = 50;
     float final_temp = 0;
     float alpha = 0.01;
-    
+    int iter_recal = 1;
+    int max_iter = 10;
+
     float current_temp = initial_temp;
 
     vector<vector<int>> current_state = initial_state;
     vector<vector<int>> solution = current_state;
+    while (iter_recal <= max_iter && get_cost(solution, yates, guests) != 0){
 
-    while (current_temp > final_temp && get_cost(solution, yates, guests) != 0){
-        vector<vector<vector<int>>> neighbors = get_neighbors(current_state, hosts);
-        vector<vector<vector<int>>> neighbors2 = get_neighbors2(current_state);
-        neighbors.insert( neighbors.end(), neighbors2.begin(), neighbors2.end() );
+        float current_temp = initial_temp;
+     
+        vector<vector<int>> current_state = initial_state;
+        
+        vector<vector<int>> current_solution = current_state;
+        while (current_temp > final_temp && get_cost(solution, yates, guests) != 0){
 
-        randindex = randindex = rand() % neighbors.size();
-        vector<vector<int>> neighbor = neighbors[randindex];
+            vector<vector<int>> neighbor = get_neighbors3(current_state, hosts);
 
-        cout << get_cost(neighbor, yates, guests) << " "; 
-        cout << current_temp << endl;
-        float cost_diff = get_cost(current_state, yates, guests) - get_cost(neighbor, yates, guests);
-        if (cost_diff > 0){
-            current_state = neighbor;
-        }
-        else{
-            if ((float) rand() / RAND_MAX  < pow(2.7, cost_diff / current_temp)){
+            if (current_temp < 1){
+                vector<vector<vector<int>>> neighbors = get_neighbors(current_state, hosts);
+                vector<vector<vector<int>>> neighbors2 = get_neighbors2(current_state);
+                neighbors.insert( neighbors.end(), neighbors2.begin(), neighbors2.end() );
+                neighbor = best_neighbor(neighbors, current_state, yates, guests);
+                if (get_cost(neighbor, yates, guests) == get_cost(current_state, yates, guests)){
+                    current_temp = 0;
+                }
+            }   
+            cout << iter_recal << " ";
+            cout << get_cost(solution, yates, guests) << " ";
+            cout << get_cost(neighbor, yates, guests) << " "; 
+            cout << current_temp << endl;
+            float cost_diff = get_cost(current_state, yates, guests) - get_cost(neighbor, yates, guests);
+            if (cost_diff > 0){
                 current_state = neighbor;
             }
+            else{
+                if ((float) rand() / RAND_MAX  < pow(2.7, cost_diff / current_temp)){
+                    current_state = neighbor;
+                }
+            }
+            if (get_cost(current_solution, yates, guests) > get_cost(current_state, yates, guests)){
+                current_solution = current_state;
+                if (get_cost(solution, yates, guests) > get_cost(current_solution, yates, guests)){
+                    solution = current_solution;
+                }
+            }
+            current_state = current_solution;
+            current_temp -= alpha;
         }
-        if (get_cost(solution, yates, guests) > get_cost(current_state, yates, guests)){
-            solution = current_state;
-        }
-        current_temp -= alpha;
+        iter_recal++;
     }
+
+    string periodos = to_string(times);
+    string respuesta;
+    string instancia;
+    fstream resultados;
+
+    if (get_cost(solution, yates, guests) == 0){
+        respuesta = "Si";
+    }
+    else{
+        respuesta = "No";
+    }
+
+    resultados.open("resultados"+config+".txt", std::ios_base::app);
+    resultados << "======================================================" << std::endl;
+    resultados << "Periodos: " + periodos << std::endl;
+    resultados << "¿Solucion?: " + respuesta +  ", Iteracion: " + to_string(iter_recal-1) + ", Costo: " + to_string(get_cost(solution, yates, guests))<< std::endl;
+    resultados << "======================================================" << std::endl;
+    resultados << std::endl;
+    
+    
+
+    for ( std::vector<std::vector<int>>::size_type i = 0; i < solution.size(); i++ )
+    {
+        for ( std::vector<int>::size_type j = 0; j < solution[i].size(); j++ )
+        {
+            std::cout << solution[i][j] << ' ';
+        }
+        std::cout << std::endl;
+    }
+
+    for ( std::vector<std::vector<int>>::size_type i = 0; i < solution.size(); i++ )
+    {
+        for ( std::vector<int>::size_type j = 0; j < solution[i].size(); j++ )
+        {
+            resultados << solution[i][j] << ' ';
+        }
+        resultados << std::endl;
+    }
+    resultados << std::endl;
+    resultados << std::endl;
+    resultados << std::endl;
+
+    resultados.close();
     return solution;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     int randindex;
     srand(time(0));
- 
+    
     string line;
     string yatesaux;
     string anfitrionesaux;
     ifstream archivo("./Configuraciones/PPP.txt");
-    ifstream archivo2("./Configuraciones/config1.txt");
+    ifstream archivo2(argv[2]);
+    string configuracion = argv[1]; 
     map<char, int> instancia;
     map<int, vector<int>> yates;
     vector<int> yateskeys;
@@ -279,7 +415,7 @@ int main()
     vector<int> huespedes;
     vector<int> solaux;
     vector<vector<int>> solucion_i;
-
+    vector<vector<int>> solucion;
     
 
     if (archivo.is_open())
@@ -337,7 +473,7 @@ int main()
         }
         solucion_i.push_back(solaux);
     }
-
+/*
     solucion_i = {{10, 10, 12,  1,  8,  7},
  { 8,  3, 10,  8,  5,  1},
  { 3, 12,  4,  3, 12,  2},
@@ -367,10 +503,9 @@ int main()
  { 4, 11,  3, 11, 12,  6},
  {16,  6,  1,  4, 12, 16},
  { 2,  9, 12,  2,  3,  9}};
-    cout << to_string(get_cost(solucion_i, yates, huespedes)) << endl;
-
-    simulated_annealing(solucion_i, yates, anfitriones, huespedes);
+ */
     
+    simulated_annealing(solucion_i, yates, anfitriones, huespedes, configuracion, instancia['T']);
     /*
     for ( std::vector<std::vector<std::vector<int>>>::size_type i = 0; i < neighbors.size(); i++ )
     {
