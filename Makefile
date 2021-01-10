@@ -1,11 +1,11 @@
-compile:
-	g++ main.c++ -Wall -o main
+build:
+	g++ main.cpp -Wall -o sa
 
 run:
-	./main
+	./sa
 
-valgrind:
-	valgrind ./main 
+test:
+	valgrind ./sa 
 
 clean: 
-	rm -rf main
+	rm -rf sa
