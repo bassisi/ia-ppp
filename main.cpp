@@ -363,7 +363,7 @@ vector<vector<int>> simulated_annealing(vector<vector<int>> initial_state, map<i
         respuesta = "No";
     }
 
-    resultados.open("resultados"+config+".txt", std::ios_base::app);
+    resultados.open("./Resultados/resultados"+config+".txt", std::ios_base::app);
     resultados << "======================================================" << std::endl;
     resultados << "Periodos: " + periodos << std::endl;
     resultados << "¿Solucion?: " + respuesta +  ", Iteracion: " + to_string(iter_recal-1) + ", Costo: " + to_string(get_cost(solution, yates, guests))<< std::endl;
@@ -473,53 +473,8 @@ int main(int argc, char *argv[])
         }
         solucion_i.push_back(solaux);
     }
-/*
-    solucion_i = {{10, 10, 12,  1,  8,  7},
- { 8,  3, 10,  8,  5,  1},
- { 3, 12,  4,  3, 12,  2},
- { 9,  8, 11,  6, 10, 16},
- { 2,  6, 12, 16,  1,  4},
- { 2,  4,  4,  7,  9,  6},
- { 2,  8,  3, 10, 16, 12},
- {10, 10, 12,  1,  7, 10},
- { 2,  4,  5, 11,  3,  4},
- { 5,  2, 12, 16,  5, 12},
- {11,  7, 10,  8, 11,  4},
- { 1,  7,  7,  3,  5, 11},
- {10, 10, 16,  1,  3, 16},
- { 7,  7, 16,  7, 11, 10},
- { 9, 11, 10,  7,  4, 11},
- { 8,  6,  5,  3, 10, 10},
- {12,  9,  4, 12,  7,  9},
- { 6,  1, 12,  6, 12,  7},
- {11,  7,  9,  6,  7,  4},
- { 2, 10,  3,  1,  6,  4},
- {10, 16, 16,  9, 11,  3},
- { 7,  6, 12,  9,  3,  6},
- { 8,  1, 12, 10, 11, 10},
- { 5,  1, 12,  3,  4,  8},
- { 5,  3,  4,  2, 10,  6},
- { 2,  4,  7, 16,  1, 10},
- { 4, 11,  3, 11, 12,  6},
- {16,  6,  1,  4, 12, 16},
- { 2,  9, 12,  2,  3,  9}};
- */
     
     simulated_annealing(solucion_i, yates, anfitriones, huespedes, configuracion, instancia['T']);
-    /*
-    for ( std::vector<std::vector<std::vector<int>>>::size_type i = 0; i < neighbors.size(); i++ )
-    {
-        for ( std::vector<std::vector<int>>::size_type j = 0; j < neighbors[i].size(); j++ )
-        {
-            for ( std::vector<int>::size_type k = 0; k < neighbors[i][j].size(); k++ )
-            {
-            std::cout << neighbors[i][j][k] << ' ';
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-    }
-    */
-    
+
     return 0;
 }
